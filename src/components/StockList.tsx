@@ -15,6 +15,12 @@ const StockList: React.FC = () => {
     return 'text-gray-600 bg-gray-50 border-gray-200';
   };
 
+  // const getChangeIcon = (change: number) => {
+  //   if (change > 0) return 'Up Arrow';
+  //   if (change < 0) return 'Down Arrow';
+  //   return 'Right Arrow';
+  // };
+
   const getChangeIcon = (change: number) => {
     if (change > 0) return 'Up Arrow';
     if (change < 0) return 'Down Arrow';
