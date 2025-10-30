@@ -1,6 +1,7 @@
 // components/OrderHistory.tsx
 import React, { useState, useEffect } from 'react';
 import type { Order } from '../types/trading';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -48,9 +49,13 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
     return type === 'buy' ? 'text-green-600 bg-green-50 border-green-200' : 'text-red-600 bg-red-50 border-red-200';
   };
 
+  // const getOrderTypeIcon = (type: string) => {
+  //   return type === 'buy' ? 'Up Arrow' : 'Down Arrow';
+  // };
+
   const getOrderTypeIcon = (type: string) => {
-    return type === 'buy' ? 'Up Arrow' : 'Down Arrow';
-  };
+  return type === 'buy' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />;
+};
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);

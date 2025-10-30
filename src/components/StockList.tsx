@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import type { Stock } from '../types/trading';
 import ChartModal from './ChartModal';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 const StockList: React.FC = () => {
   const { stocks, connected } = useWebSocket();
@@ -21,11 +22,17 @@ const StockList: React.FC = () => {
   //   return 'Right Arrow';
   // };
 
+  // const getChangeIcon = (change: number) => {
+  //   if (change > 0) return 'Up Arrow';
+  //   if (change < 0) return 'Down Arrow';
+  //   return 'Right Arrow';
+  // };
+
   const getChangeIcon = (change: number) => {
-    if (change > 0) return 'Up Arrow';
-    if (change < 0) return 'Down Arrow';
-    return 'Right Arrow';
-  };
+  if (change > 0) return <TrendingUp className="w-4 h-4" />;
+  if (change < 0) return <TrendingDown className="w-4 h-4" />;
+  return <Minus className="w-4 h-4" />;
+};
 
   const openChart = (stock: Stock) => {
     setSelectedStock(stock);
