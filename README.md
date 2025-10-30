@@ -66,7 +66,7 @@ No refresh needed – feels like Bloomberg.
 
 Getting Started
 1. Clone & Install
-      git clone https://github.com/yourname/trading-simulator-frontend.git
+      git clone https://github.com/nwafor-princewill/trading-simulator-frontend.git
       cd trading-simulator-frontend
       npm install
 
