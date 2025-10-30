@@ -1,10 +1,11 @@
+// src/pages/Trade.tsx
 import React, { useState } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import TradingPanel from '../components/TradingPanel';
 import AdvancedOrdersPanel from '../components/AdvancedOrdersPanel';
 
 const Trade: React.FC = () => {
-  const { stocks } = useWebSocket('ws://localhost:8080/ws');
+  const { stocks } = useWebSocket();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const refreshOrders = () => {
@@ -14,7 +15,7 @@ const Trade: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">💰 Trading Desk</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Trading Desk</h1>
         <p className="text-gray-600">Execute trades and manage advanced orders</p>
       </header>
 

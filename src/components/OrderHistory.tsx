@@ -1,5 +1,8 @@
+// components/OrderHistory.tsx
 import React, { useState, useEffect } from 'react';
 import type { Order } from '../types/trading';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface OrderHistoryProps {
   refreshTrigger?: number;
@@ -13,7 +16,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8080/api/orders`, {
+      const response = await fetch(`${API_URL}/api/orders`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -21,7 +24,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
       const data = await response.json();
       
       if (response.ok) {
-        // Sort orders by timestamp (newest first)
         const sortedOrders = (data.orders || []).sort((a: Order, b: Order) => 
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
@@ -47,7 +49,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
   };
 
   const getOrderTypeIcon = (type: string) => {
-    return type === 'buy' ? '🔼' : '🔽';
+    return type === 'buy' ? 'Up Arrow' : 'Down Arrow';
   };
 
   const formatDate = (timestamp: string) => {
@@ -71,7 +73,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
         </button>
       </div>
 
-      {/* Order Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 text-center">
           <div className="text-2xl font-bold text-blue-600">{totalTrades}</div>
@@ -87,14 +88,11 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
         </div>
       </div>
 
-      {/* Filter Buttons */}
       <div className="flex space-x-2 mb-4">
         <button
           onClick={() => setFilter('all')}
           className={`px-3 py-1 rounded-lg text-sm font-medium ${
-            filter === 'all' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           All Orders
@@ -102,9 +100,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
         <button
           onClick={() => setFilter('buy')}
           className={`px-3 py-1 rounded-lg text-sm font-medium ${
-            filter === 'buy' 
-              ? 'bg-green-500 text-white' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            filter === 'buy' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           Buy Orders
@@ -112,16 +108,13 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
         <button
           onClick={() => setFilter('sell')}
           className={`px-3 py-1 rounded-lg text-sm font-medium ${
-            filter === 'sell' 
-              ? 'bg-red-500 text-white' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            filter === 'sell' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           Sell Orders
         </button>
       </div>
 
-      {/* Orders List */}
       <div className="border border-gray-200 rounded-lg overflow-hidden">
         {isLoading ? (
           <div className="text-center py-8">
@@ -130,7 +123,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-gray-400 text-4xl mb-3">📋</div>
+            <div className="text-gray-400 text-4xl mb-3">Clipboard</div>
             <p className="text-gray-500">No orders found</p>
             <p className="text-gray-400 text-sm">Start trading to see your order history!</p>
           </div>
@@ -179,7 +172,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ refreshTrigger = 0 }) => {
         )}
       </div>
 
-      {/* Summary */}
       {filteredOrders.length > 0 && (
         <div className="mt-4 text-sm text-gray-600">
           Showing {filteredOrders.length} of {orders.length} total orders

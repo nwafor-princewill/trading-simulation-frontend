@@ -1,13 +1,16 @@
+// components/Portfolio.tsx
 import React, { useState, useEffect } from 'react';
 import type { Portfolio as PortfolioType, Stock } from '../types/trading';
 import { useAuth } from '../contexts/AuthContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface PortfolioProps {
   stocks?: Stock[];
 }
 
 const Portfolio: React.FC<PortfolioProps> = ({ stocks = [] }) => {
-  const { refreshUser } = useAuth(); // <-- now used
+  const { refreshUser } = useAuth();
 
   const [portfolio, setPortfolio] = useState<PortfolioType[]>([]);
   const [totalValue, setTotalValue] = useState(0);
@@ -18,7 +21,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ stocks = [] }) => {
   const fetchPortfolio = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/portfolio', {
+      const response = await fetch(`${API_URL}/api/portfolio`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -59,7 +62,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ stocks = [] }) => {
     fetchPortfolio();
     const id = setInterval(() => {
       fetchPortfolio();
-      refreshUser(); // <-- keeps cash in sync
+      refreshUser();
     }, 5000);
     return () => clearInterval(id);
   }, [refreshUser]);

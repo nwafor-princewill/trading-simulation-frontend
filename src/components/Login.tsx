@@ -1,5 +1,8 @@
+// components/Login.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface LoginProps {
   onSwitchToRegister: () => void;
@@ -18,7 +21,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +33,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
 
       if (response.ok) {
         login(data.token, data.user);
-        refreshUser(); // <-- ADD THIS
+        refreshUser();
       } else {
         setError(data.error || 'Login failed');
       }
@@ -43,7 +46,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">🔐 Login to TradeSim</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Login to TradeSim</h2>
       
       {error && (
         <div className="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-4">

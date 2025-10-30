@@ -1,5 +1,8 @@
+// components/Register.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -28,7 +31,6 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     setIsLoading(true);
     setError('');
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
@@ -42,7 +44,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
       if (response.ok) {
         login(data.token, data.user);
-        refreshUser(); // <-- ADD THIS
+        refreshUser();
       } else {
         setError(data.error || 'Registration failed');
       }
@@ -71,7 +73,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">🚀 Join TradeSim</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Join TradeSim</h2>
       <p className="text-gray-600 mb-6">Start with $10,000 virtual cash to trade!</p>
       
       {error && (
@@ -146,7 +148,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
         <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
           <div className="flex items-center">
-            <div className="text-green-500 mr-2">💰</div>
+            <div className="text-green-500 mr-2">$</div>
             <div>
               <div className="text-green-800 font-medium">$10,000 Starting Cash</div>
               <div className="text-green-600 text-sm">Practice trading with virtual money</div>

@@ -1,3 +1,4 @@
+// src/pages/Dashboard.tsx
 import React, { useEffect } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import StockList from '../components/StockList';
@@ -5,10 +6,9 @@ import Portfolio from '../components/Portfolio';
 import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-  const { stocks, connected } = useWebSocket('ws://localhost:8080/ws');
+  const { stocks, connected } = useWebSocket();
   const { user, refreshUser } = useAuth();
 
-  // Refresh user on mount to ensure latest data
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);

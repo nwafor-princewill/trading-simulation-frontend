@@ -1,10 +1,11 @@
+// components/StockList.tsx
 import React, { useState } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import type { Stock } from '../types/trading';
 import ChartModal from './ChartModal';
 
 const StockList: React.FC = () => {
-  const { stocks, connected } = useWebSocket('ws://localhost:8080/ws');
+  const { stocks, connected } = useWebSocket();
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [isChartOpen, setIsChartOpen] = useState(false);
 
@@ -15,9 +16,9 @@ const StockList: React.FC = () => {
   };
 
   const getChangeIcon = (change: number) => {
-    if (change > 0) return '🔼';
-    if (change < 0) return '🔽';
-    return '➡️';
+    if (change > 0) return 'Up Arrow';
+    if (change < 0) return 'Down Arrow';
+    return 'Right Arrow';
   };
 
   const openChart = (stock: Stock) => {
@@ -87,7 +88,7 @@ const StockList: React.FC = () => {
                       onClick={() => openChart(stock)}
                       className="text-blue-500 hover:text-blue-700 font-medium text-sm px-3 py-1 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
                     >
-                      📊 View Chart
+                      View Chart
                     </button>
                   </td>
                 </tr>
@@ -97,7 +98,7 @@ const StockList: React.FC = () => {
           
           {stocks.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">📈</div>
+              <div className="text-gray-400 text-6xl mb-4">Chart</div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Waiting for market data</h3>
               <p className="text-gray-500">Live stock prices will appear here once connected</p>
             </div>

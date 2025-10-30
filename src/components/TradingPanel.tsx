@@ -38,7 +38,7 @@ const TradingPanel: React.FC<TradingPanelProps> = ({ stocks, onOrderPlaced }) =>
       const price = orderType === 'market' ? currentPrice : parseFloat(limitPrice);
       const token = localStorage.getItem('token');
       
-      const response = await fetch('http://localhost:8080/api/orders/place', {
+      const response = await fetch('https://trading-simulation-backend.onrender.com/api/orders/place', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
