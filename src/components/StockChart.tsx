@@ -5,13 +5,12 @@ import {
   LinearScale,
   TimeScale,
   LineElement,
-  BarElement,
   PointElement,
   Tooltip,
   Legend,
 } from 'chart.js';
 import type { ChartOptions, ChartData } from 'chart.js';
-import { Chart } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 // chartjs-adapter-date-fns does not provide TypeScript types by default — ignore the type check for this import
 // @ts-ignore
 import 'chartjs-adapter-date-fns';
@@ -22,7 +21,6 @@ ChartJS.register(
   LinearScale,
   TimeScale,
   LineElement,
-  BarElement,
   PointElement,
   Tooltip,
   Legend
@@ -35,7 +33,7 @@ interface StockChartProps {
 
 const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
   const [chartData, setChartData] = useState<CandleData[]>([]);
-  const [chartType, setChartType] = useState<'candle' | 'line'>('candle');
+  const [chartType, setChartType] = useState<'area' | 'line'>('area');
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframe);
 
   const timeframes: ChartTimeframe[] = [
@@ -110,47 +108,34 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
     setChartData(historicalData);
   }, [stock.symbol, selectedTimeframe]);
 
-  const getChartData = (): ChartData<'bar' | 'line', any, Date> => {
-    if (chartType === 'candle') {
-      return {
-        labels: chartData.map(d => new Date(d.timestamp)),
-        datasets: [
-          {
-            label: `${stock.symbol} Price`,
-            data: chartData.map(d => ({
-              x: new Date(d.timestamp),
-              o: d.open,
-              h: d.high,
-              l: d.low,
-              c: d.close,
-            })),
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: chartData.map(d => 
-              d.close >= d.open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
-            ),
-            borderWidth: 1,
-          },
-        ],
-      };
-    } else {
-      return {
-        labels: chartData.map(d => new Date(d.timestamp)),
-        datasets: [
-          {
-            label: `${stock.symbol} Price`,
-            data: chartData.map(d => d.close),
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.1,
-          },
-        ],
-      };
-    }
+  const getChartData = (): ChartData<'line', any, Date> => {
+    const isPositive = chartData.length > 0 && 
+      chartData[chartData.length - 1].close >= chartData[0].open;
+
+    return {
+      labels: chartData.map(d => new Date(d.timestamp)),
+      datasets: [
+        {
+          label: `${stock.symbol} Price`,
+          data: chartData.map(d => d.close),
+          borderColor: isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
+          backgroundColor: chartType === 'area' 
+            ? isPositive 
+              ? 'rgba(34, 197, 94, 0.1)' 
+              : 'rgba(239, 68, 68, 0.1)'
+            : 'transparent',
+          borderWidth: 2,
+          fill: chartType === 'area',
+          tension: 0.4,
+          pointRadius: chartData.length > 50 ? 0 : 3,
+          pointHoverRadius: 5,
+          pointBackgroundColor: isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
+        },
+      ],
+    };
   };
 
-  const chartOptions: ChartOptions<'line' | 'bar'> = {
+  const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -163,16 +148,24 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
         intersect: false,
         callbacks: {
           label: function(context) {
-            if (chartType === 'candle') {
-              const point = context.raw as any;
+            const dataIndex = context.dataIndex;
+            const candle = chartData[dataIndex];
+            if (candle) {
               return [
-                `Open: $${point.o}`,
-                `High: $${point.h}`,
-                `Low: $${point.l}`,
-                `Close: $${point.c}`,
+                `Open: $${candle.open.toFixed(2)}`,
+                `High: $${candle.high.toFixed(2)}`,
+                `Low: $${candle.low.toFixed(2)}`,
+                `Close: $${candle.close.toFixed(2)}`,
+                `Volume: ${candle.volume.toLocaleString()}`,
               ];
             }
-            return `Price: $${context.parsed.y}`;
+            // context.parsed can be null, a number, or an object like { x, y }
+            const parsed = context.parsed as any;
+            const y = parsed == null ? undefined : (typeof parsed === 'number' ? parsed : parsed.y);
+            if (typeof y === 'number') {
+              return `Price: $${y.toFixed(2)}`;
+            }
+            return 'Price: N/A';
           },
         },
       },
@@ -193,7 +186,7 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
         },
         ticks: {
           callback: function(value) {
-            return '$' + value;
+            return '$' + Number(value).toFixed(2);
           },
         },
       },
@@ -250,14 +243,14 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
         {/* Chart Type Buttons */}
         <div className="flex space-x-1">
           <button
-            onClick={() => setChartType('candle')}
+            onClick={() => setChartType('area')}
             className={`px-3 py-1 text-sm rounded-lg ${
-              chartType === 'candle'
+              chartType === 'area'
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Candlestick
+            Area
           </button>
           <button
             onClick={() => setChartType('line')}
@@ -275,8 +268,7 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
       {/* Chart Container */}
       <div className="h-80">
         {chartData.length > 0 ? (
-          <Chart
-            type={chartType === 'candle' ? 'bar' : 'line'}
+          <Line
             data={getChartData()}
             options={chartOptions}
           />
@@ -291,15 +283,19 @@ const StockChart: React.FC<StockChartProps> = ({ stock, timeframe = '1D' }) => {
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
         <div className="text-center">
           <div className="text-gray-600">Open</div>
-          <div className="font-semibold">${chartData[chartData.length - 1]?.open.toFixed(2) || '0.00'}</div>
+          <div className="font-semibold">${chartData[0]?.open.toFixed(2) || '0.00'}</div>
         </div>
         <div className="text-center">
           <div className="text-gray-600">High</div>
-          <div className="font-semibold text-green-600">${chartData[chartData.length - 1]?.high.toFixed(2) || '0.00'}</div>
+          <div className="font-semibold text-green-600">
+            ${Math.max(...chartData.map(d => d.high)).toFixed(2) || '0.00'}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-gray-600">Low</div>
-          <div className="font-semibold text-red-600">${chartData[chartData.length - 1]?.low.toFixed(2) || '0.00'}</div>
+          <div className="font-semibold text-red-600">
+            ${Math.min(...chartData.map(d => d.low)).toFixed(2) || '0.00'}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-gray-600">Volume</div>
